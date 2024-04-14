@@ -5,23 +5,19 @@
 #                                                     +:+ +:+         +:+      #
 #    By: migarci2 <migarci2@student.42malaga.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/04/12 22:21:59 by migarci2          #+#    #+#              #
-#    Updated: 2024/04/13 23:50:44 by migarci2         ###   ########.fr        #
+#    Created: 2024/04/13 23:32:24 by migarci2          #+#    #+#              #
+#    Updated: 2024/04/14 00:12:28 by migarci2         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FROM debian:buster
+FROM debian:latest
 
-RUN apt-get update && apt-get install -y mariadb-server
-COPY ./config/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
-COPY ./config/init.sql /etc/mysql/init.sql
+RUN apt-get update && apt-get install -y redis-server
 
-COPY ./tools/setupdb.sh /usr/bin/setupdb.sh
+RUN mkdir -p /etc/redis
 
-RUN chmod +x /usr/bin/setupdb.sh
+COPY ./config/redis.conf /etc/redis/redis.conf
 
-RUN mkdir /run/mysqld
+EXPOSE 6379
 
-EXPOSE 3306
-
-CMD ["/usr/bin/setupdb.sh"]
+CMD ["redis-server", "/etc/redis/redis.conf", "--daemonize no"]

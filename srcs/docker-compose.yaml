@@ -1,3 +1,4 @@
+name: inception
 services:
   nginx:
     depends_on:
@@ -5,6 +6,7 @@ services:
     build: ./requirements/nginx
     image: inception-nginx:latest
     container_name: nginx
+    restart: always
     volumes:
       - wordpress-data:/var/www/html
     ports:
@@ -15,9 +17,11 @@ services:
   wordpress:
     depends_on:
       - mariadb
+      - redis
     build: ./requirements/wordpress
     image: inception-wordpress:latest
     container_name: wordpress
+    restart: always
     volumes:
       - wordpress-data:/var/www/html
     networks:
@@ -29,12 +33,73 @@ services:
     build: ./requirements/mariadb
     image: inception-mariadb:latest
     container_name: mariadb
+    restart: always
     volumes:
       - mariadb-data:/var/lib/mysql
     networks:
       - inception-network
     env_file:
       - .env
+
+  redis:
+    build: ./requirements/bonus/redis
+    image: inception-redis:latest
+    container_name: redis
+    restart: always
+    networks:
+      - inception-network
+
+  ftp:
+    depends_on:
+      - wordpress
+    build: ./requirements/bonus/ftp
+    image: inception-ftp:latest
+    container_name: ftp
+    restart: always
+    volumes:
+      - wordpress-data:/var/www/html
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    networks:
+      - inception-network
+    env_file:
+      - .env
+
+  adminer:
+    depends_on:
+      - mariadb
+    build: ./requirements/bonus/adminer
+    image: inception-adminer:latest
+    container_name: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - inception-network
+
+  webpage:
+    build: ./requirements/bonus/webpage
+    image: inception-webpage
+    container_name: webpage
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - inception-network
+
+  portainer:
+    build: ./requirements/bonus/portainer
+    image: inception-portainer
+    container_name: portainer
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    ports:
+      - "9000:9000"
+    networks:
+      - inception-network
 
 networks:
   inception-network:
@@ -43,3 +108,4 @@ networks:
 volumes:
   wordpress-data:
   mariadb-data:
+  portainer-data:
