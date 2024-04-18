@@ -107,5 +107,20 @@ networks:
 
 volumes:
   wordpress-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/migarci2/data
   mariadb-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/migarci2/data
   portainer-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/migarci2/data
